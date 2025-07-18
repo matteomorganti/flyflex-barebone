@@ -14,8 +14,8 @@
 
   <h2>Ricerca standard</h2>
   <form action="/search-flights" method="POST">
-    <label>Da (aeroporto): <input name="from" required class="awesomplete" /></label><br />
-    <label>A (aeroporto): <input name="to" required class="awesomplete" /></label><br />
+    <label>Da (aeroporto): <input name="from" required class="awesomplete airport-input" /></label><br />
+    <label>A (aeroporto): <input name="to" required class="awesomplete airport-input" /></label><br />
     <label>Date (max 2, es. 2025-08-05,2025-08-12): <input name="dates" required /></label><br />
     <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
     <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
@@ -26,7 +26,7 @@
 
   <h2>Ricerca Avanzata da Più Aeroporti con Fascia Oraria</h2>
   <form action="/multi-origin-advanced" method="POST" onsubmit="return validateLimits()">
-    <label>Aeroporti (max 3, separati da virgola): <input id="airports" name="airports" required class="awesomplete" /></label><br />
+    <label>Aeroporti (max 3, separati da virgola): <input id="airports" name="airports" required class="awesomplete airport-input" /></label><br />
     <label>Date (max 2, es. 2025-08-05,2025-08-12): <input id="dates" name="dates" required /></label><br />
     <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
     <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
@@ -35,16 +35,39 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js" integrity="sha512-rqEnaxmHmbZZYIB3YgGi6SCF70YbRRU1V7vkhY57Fy08qjJg/YM0ohTeZ9L+XHzrW09DfMd7jI0D41F0+TljNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
+    function extractAirportCode(value) {
+      return value.split(' - ')[0].trim();
+    }
+
     fetch('/airports.json')
       .then(res => res.json())
       .then(data => {
         const airportList = data.map(a => `${a.code} - ${a.name}`);
-        document.querySelectorAll(".awesomplete").forEach(input => {
+
+        document.querySelectorAll(".airport-input").forEach(input => {
           new Awesomplete(input, {
             list: airportList,
             minChars: 1,
             autoFirst: true,
             filter: Awesomplete.FILTER_CONTAINS
+          });
+        });
+
+        document.querySelectorAll("form").forEach(form => {
+          form.addEventListener("submit", () => {
+            if (form.querySelector('[name="from"]')) {
+              form.querySelector('[name="from"]').value = extractAirportCode(form.querySelector('[name="from"]').value);
+            }
+            if (form.querySelector('[name="to"]')) {
+              form.querySelector('[name="to"]').value = extractAirportCode(form.querySelector('[name="to"]').value);
+            }
+            if (form.querySelector('[name="airports"]')) {
+              const values = form.querySelector('[name="airports"]').value
+                .split(',')
+                .map(v => extractAirportCode(v))
+                .join(',');
+              form.querySelector('[name="airports"]').value = values;
+            }
           });
         });
       });
