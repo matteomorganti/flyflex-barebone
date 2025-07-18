@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlyFlex</title>
+</head>
+<body>
+  <h1>Ricerca Volo</h1>
+
+  <h2>Ricerca standard</h2>
+  <form action="/search-flights" method="POST">
+    <label>Da (aeroporto): <input name="from" required /></label><br />
+    <label>A (aeroporto): <input name="to" required /></label><br />
+    <label>Date (max 2, es. 2025-08-05,2025-08-12): <input name="dates" required /></label><br />
+    <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
+    <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
+    <button type="submit">Cerca Voli</button>
+  </form>
+
+  <hr />
+
+  <h2>Ricerca Avanzata da Più Aeroporti con Fascia Oraria</h2>
+  <form action="/multi-origin-advanced" method="POST" onsubmit="return validateLimits()">
+    <label>Aeroporti (max 3, es. MXP,LIN,BGY): <input id="airports" name="airports" required /></label><br />
+    <label>Date (max 2, es. 2025-08-05,2025-08-12): <input id="dates" name="dates" required /></label><br />
+    <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
+    <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
+    <button type="submit">Cerca Voli</button>
+  </form>
+
+  <script>
+    function validateLimits() {
+      const airportCount = document.getElementById("airports").value.split(',').filter(a => a.trim()).length;
+      const dateCount = document.getElementById("dates").value.split(',').filter(d => d.trim()).length;
+
+      if (airportCount > 3) {
+        alert("Puoi selezionare al massimo 3 aeroporti.");
+        return false;
+      }
+
+      if (dateCount > 2) {
+        alert("Puoi selezionare al massimo 2 date.");
+        return false;
+      }
+
+      return true;
+    }
+  </script>
+</body>
+</html>
