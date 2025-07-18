@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FlyFlex</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" integrity="sha512-jH/OMNSRhGuXAy3Wpsv+hlqYbB1QnZBrP13RtdZ+mU3jcTwDoa1kYsycfmc/2UE+exx2YgQ3xXx9BFgM53fJzw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     input { margin-bottom: 6px; }
   </style>
@@ -16,7 +17,7 @@
   <form action="/search-flights" method="POST">
     <label>Da (aeroporto): <input name="from" required class="awesomplete airport-input" /></label><br />
     <label>A (aeroporto): <input name="to" required class="awesomplete airport-input" /></label><br />
-    <label>Date (max 2, es. 2025-08-05,2025-08-12): <input name="dates" required /></label><br />
+    <label>Date (max 2): <input name="dates" id="dates-standard" required /></label><br />
     <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
     <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
     <button type="submit">Cerca Voli</button>
@@ -27,13 +28,14 @@
   <h2>Ricerca Avanzata da Più Aeroporti con Fascia Oraria</h2>
   <form action="/multi-origin-advanced" method="POST" onsubmit="return validateLimits()">
     <label>Aeroporti (max 3, separati da virgola): <input id="airports" name="airports" required class="awesomplete airport-input" /></label><br />
-    <label>Date (max 2, es. 2025-08-05,2025-08-12): <input id="dates" name="dates" required /></label><br />
+    <label>Date (max 2): <input id="dates" name="dates" required /></label><br />
     <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
     <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
     <button type="submit">Cerca Voli</button>
   </form>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js" integrity="sha512-rqEnaxmHmbZZYIB3YgGi6SCF70YbRRU1V7vkhY57Fy08qjJg/YM0ohTeZ9L+XHzrW09DfMd7jI0D41F0+TljNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     function extractAirportCode(value) {
       return value.split(' - ')[0].trim();
@@ -71,6 +73,20 @@
           });
         });
       });
+
+    flatpickr("#dates", {
+      mode: "multiple",
+      maxDate: "2099-12-31",
+      dateFormat: "Y-m-d",
+      maxItems: 2
+    });
+
+    flatpickr("#dates-standard", {
+      mode: "multiple",
+      maxDate: "2099-12-31",
+      dateFormat: "Y-m-d",
+      maxItems: 2
+    });
 
     function validateLimits() {
       const airportCount = document.getElementById("airports").value.split(',').filter(a => a.trim()).length;
