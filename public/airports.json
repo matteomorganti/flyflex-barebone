@@ -1,0 +1,190 @@
+[
+  {
+    "code": "MXP",
+    "name": "Milano Malpensa"
+  },
+  {
+    "code": "LIN",
+    "name": "Milano Linate"
+  },
+  {
+    "code": "BGY",
+    "name": "Bergamo Orio al Serio"
+  },
+  {
+    "code": "TRN",
+    "name": "Torino Caselle"
+  },
+  {
+    "code": "GOA",
+    "name": "Genova Cristoforo Colombo"
+  },
+  {
+    "code": "BLQ",
+    "name": "Bologna Guglielmo Marconi"
+  },
+  {
+    "code": "VCE",
+    "name": "Venezia Marco Polo"
+  },
+  {
+    "code": "TSF",
+    "name": "Treviso Antonio Canova"
+  },
+  {
+    "code": "VRN",
+    "name": "Verona Villafranca"
+  },
+  {
+    "code": "PSA",
+    "name": "Pisa Galileo Galilei"
+  },
+  {
+    "code": "FLR",
+    "name": "Firenze Peretola"
+  },
+  {
+    "code": "FCO",
+    "name": "Roma Fiumicino"
+  },
+  {
+    "code": "CIA",
+    "name": "Roma Ciampino"
+  },
+  {
+    "code": "NAP",
+    "name": "Napoli Capodichino"
+  },
+  {
+    "code": "BRI",
+    "name": "Bari Karol Wojtyla"
+  },
+  {
+    "code": "PMO",
+    "name": "Palermo Punta Raisi"
+  },
+  {
+    "code": "CTA",
+    "name": "Catania Fontanarossa"
+  },
+  {
+    "code": "REG",
+    "name": "Reggio Calabria"
+  },
+  {
+    "code": "SUF",
+    "name": "Lamezia Terme"
+  },
+  {
+    "code": "CAG",
+    "name": "Cagliari Elmas"
+  },
+  {
+    "code": "OLB",
+    "name": "Olbia Costa Smeralda"
+  },
+  {
+    "code": "AHO",
+    "name": "Alghero Fertilia"
+  },
+  {
+    "code": "LHR",
+    "name": "London Heathrow"
+  },
+  {
+    "code": "LGW",
+    "name": "London Gatwick"
+  },
+  {
+    "code": "STN",
+    "name": "London Stansted"
+  },
+  {
+    "code": "LTN",
+    "name": "London Luton"
+  },
+  {
+    "code": "CDG",
+    "name": "Paris Charles de Gaulle"
+  },
+  {
+    "code": "ORY",
+    "name": "Paris Orly"
+  },
+  {
+    "code": "AMS",
+    "name": "Amsterdam Schiphol"
+  },
+  {
+    "code": "FRA",
+    "name": "Frankfurt am Main"
+  },
+  {
+    "code": "MUC",
+    "name": "Munich Franz Josef Strauss"
+  },
+  {
+    "code": "DUS",
+    "name": "D\u00fcsseldorf"
+  },
+  {
+    "code": "ZRH",
+    "name": "Zurich"
+  },
+  {
+    "code": "VIE",
+    "name": "Vienna Schwechat"
+  },
+  {
+    "code": "BRU",
+    "name": "Brussels Airport"
+  },
+  {
+    "code": "MAD",
+    "name": "Madrid Barajas"
+  },
+  {
+    "code": "BCN",
+    "name": "Barcelona El Prat"
+  },
+  {
+    "code": "LIS",
+    "name": "Lisbon Humberto Delgado"
+  },
+  {
+    "code": "CPH",
+    "name": "Copenhagen Kastrup"
+  },
+  {
+    "code": "ARN",
+    "name": "Stockholm Arlanda"
+  },
+  {
+    "code": "OSL",
+    "name": "Oslo Gardermoen"
+  },
+  {
+    "code": "HEL",
+    "name": "Helsinki Vantaa"
+  },
+  {
+    "code": "DUB",
+    "name": "Dublin"
+  },
+  {
+    "code": "PRG",
+    "name": "Prague Vaclav Havel"
+  },
+  {
+    "code": "WAW",
+    "name": "Warsaw Chopin"
+  },
+  {
+    "code": "BUD",
+    "name": "Budapest Ferenc Liszt"
+  },
+  {
+    "code": "ATH",
+    "name": "Athens Eleftherios Venizelos"
+  }
+]
