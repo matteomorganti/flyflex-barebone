@@ -112,19 +112,24 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(form);
+        const rawForm = new FormData(form);
+        const formData = Object.fromEntries(rawForm.entries());
+
+        // Normalizza i campi aeroporti
         ["from", "to", "airports"].forEach(name => {
-          if (formData.has(name)) {
-            const raw = formData.get(name);
+          if (formData[name]) {
+            const raw = formData[name];
             const codes = raw.split(',').map(v => extractAirportCode(v)).join(',');
-            formData.set(name, codes);
+            formData[name] = codes;
           }
         });
 
         const response = await fetch(endpoint, {
           method: "POST",
-          body: formData
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
         });
+
 
         const data = await response.json();
         displayResults(data.flights);
