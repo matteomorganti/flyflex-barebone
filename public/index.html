@@ -8,13 +8,17 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     input { margin-bottom: 6px; }
+    #results { margin-top: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
   </style>
 </head>
 <body>
   <h1>Ricerca Volo</h1>
 
   <h2>Ricerca standard</h2>
-  <form action="/search-flights" method="POST">
+  <form id="standardForm">
     <label>Da (aeroporto): <input name="from" required class="awesomplete airport-input" /></label><br />
     <label>A (aeroporto): <input name="to" required class="awesomplete airport-input" /></label><br />
     <label>Date (max 2): <input name="dates" id="dates-standard" required /></label><br />
@@ -26,13 +30,15 @@
   <hr />
 
   <h2>Ricerca Avanzata da Più Aeroporti con Fascia Oraria</h2>
-  <form action="/multi-origin-advanced" method="POST" onsubmit="return validateLimits()">
+  <form id="multiForm" onsubmit="return validateLimits()">
     <label>Aeroporti (max 3, separati da virgola): <input id="airports" name="airports" required class="awesomplete airport-input" /></label><br />
     <label>Date (max 2): <input id="dates" name="dates" required /></label><br />
     <label>Ora Min (es. 06:00): <input type="time" name="time_min" required /></label><br />
     <label>Ora Max (es. 10:00): <input type="time" name="time_max" required /></label><br />
     <button type="submit">Cerca Voli</button>
   </form>
+
+  <div id="results"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -52,24 +58,6 @@
             minChars: 1,
             autoFirst: true,
             filter: Awesomplete.FILTER_CONTAINS
-          });
-        });
-
-        document.querySelectorAll("form").forEach(form => {
-          form.addEventListener("submit", () => {
-            if (form.querySelector('[name="from"]')) {
-              form.querySelector('[name="from"]').value = extractAirportCode(form.querySelector('[name="from"]').value);
-            }
-            if (form.querySelector('[name="to"]')) {
-              form.querySelector('[name="to"]').value = extractAirportCode(form.querySelector('[name="to"]').value);
-            }
-            if (form.querySelector('[name="airports"]')) {
-              const values = form.querySelector('[name="airports"]').value
-                .split(',')
-                .map(v => extractAirportCode(v))
-                .join(',');
-              form.querySelector('[name="airports"]').value = values;
-            }
           });
         });
       });
@@ -104,6 +92,47 @@
 
       return true;
     }
+
+    function displayResults(flights) {
+      const resultsDiv = document.getElementById("results");
+      if (!flights || flights.length === 0) {
+        resultsDiv.innerHTML = "<p>Nessun volo trovato.</p>";
+        return;
+      }
+      let html = "<table><tr><th>Compagnia</th><th>Partenza</th><th>Arrivo</th><th>Durata</th><th>Prezzo</th></tr>";
+      flights.forEach(f => {
+        html += `<tr><td>${f.carrier}</td><td>${f.departure}</td><td>${f.arrival}</td><td>${f.duration}</td><td>${f.price}</td></tr>`;
+      });
+      html += "</table>";
+      resultsDiv.innerHTML = html;
+    }
+
+    function handleFormSubmit(formId, endpoint) {
+      const form = document.getElementById(formId);
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        ["from", "to", "airports"].forEach(name => {
+          if (formData.has(name)) {
+            const raw = formData.get(name);
+            const codes = raw.split(',').map(v => extractAirportCode(v)).join(',');
+            formData.set(name, codes);
+          }
+        });
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        displayResults(data.flights);
+      });
+    }
+
+    handleFormSubmit("standardForm", "/search-flights");
+    handleFormSubmit("multiForm", "/multi-origin-advanced");
   </script>
 </body>
 </html>
