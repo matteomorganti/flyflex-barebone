@@ -13,20 +13,29 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-// Converte i dati Amadeus nel formato richiesto dal frontend
 function mapFlightToResult(flight) {
-  const seg = flight.itineraries[0].segments[0];
+  const seg = flight?.itineraries?.[0]?.segments?.[0];
+  if (!seg) return null;
+
   const carrier = seg.carrierCode || 'N/A';
-  const departure = seg.departure.at.replace('T', ' ');
-  const arrival = seg.arrival.at.replace('T', ' ');
-  const duration = flight.itineraries[0].duration.replace('PT', '').toLowerCase();
+  const departure = seg.departure?.at?.replace('T', ' ') || 'N/A';
+  const arrival = seg.arrival?.at?.replace('T', ' ') || 'N/A';
+  const duration = flight.itineraries?.[0]?.duration?.replace('PT', '').toLowerCase() || 'N/A';
   const price = flight.price?.total ? `${flight.price.total} ${flight.price.currency || 'EUR'}` : 'N/A';
+
   return { carrier, departure, arrival, duration, price };
 }
 
 app.post('/search-flights', async (req, res) => {
   const { from, to, dates, time_min, time_max } = req.body;
-  const token = await getAccessToken();
+  let token;
+
+  try {
+    token = await getAccessToken();
+  } catch (err) {
+    return res.status(500).json({ error: 'Errore accesso token Amadeus' });
+  }
+
   const dateArray = dates.split(',');
   let results = [];
 
@@ -39,27 +48,34 @@ app.post('/search-flights', async (req, res) => {
           destinationLocationCode: to,
           departureDate: date.trim(),
           adults: 1,
-          max: 5,
+          max: 5
         }
       });
 
       const filtered = response.data.data.filter(flight => {
-        const time = flight.itineraries[0].segments[0].departure.at.split('T')[1];
+        const time = flight?.itineraries?.[0]?.segments?.[0]?.departure?.at?.split('T')[1];
         return time >= time_min && time <= time_max;
       });
 
       results.push(...filtered);
     } catch (err) {
-      console.error('Errore nella richiesta API:', err.message);
+      console.error('Errore ricerca voli:', err.message);
     }
   }
 
-  res.json({ flights: results.map(mapFlightToResult) });
+  res.json({ flights: results.map(mapFlightToResult).filter(Boolean) });
 });
 
 app.post('/multi-origin-advanced', async (req, res) => {
   const { airports, dates, time_min, time_max } = req.body;
-  const token = await getAccessToken();
+  let token;
+
+  try {
+    token = await getAccessToken();
+  } catch (err) {
+    return res.status(500).json({ error: 'Errore accesso token Amadeus' });
+  }
+
   const airportList = airports.split(',');
   const dateArray = dates.split(',');
   let results = [];
@@ -71,7 +87,7 @@ app.post('/multi-origin-advanced', async (req, res) => {
           headers: { Authorization: `Bearer ${token}` },
           params: {
             origin: origin.trim(),
-            departureDate: date.trim(),
+            departureDate: date.trim()
           }
         });
 
@@ -89,7 +105,7 @@ app.post('/multi-origin-advanced', async (req, res) => {
             });
 
             const filtered = offerRes.data.data.filter(flight => {
-              const time = flight.itineraries[0].segments[0].departure.at.split('T')[1];
+              const time = flight?.itineraries?.[0]?.segments?.[0]?.departure?.at?.split('T')[1];
               return time >= time_min && time <= time_max;
             });
 
@@ -101,12 +117,12 @@ app.post('/multi-origin-advanced', async (req, res) => {
           }
         }
       } catch (err) {
-        console.error('Errore multi-origin advanced:', err.message);
+        console.error('Errore richiesta destinazioni:', err.message);
       }
     }
   }
 
-  res.json({ flights: results.map(mapFlightToResult) });
+  res.json({ flights: results.map(mapFlightToResult).filter(Boolean) });
 });
 
 async function getAccessToken() {
