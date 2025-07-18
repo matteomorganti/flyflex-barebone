@@ -6,14 +6,24 @@ const path = require('path');
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(express.static('public'));
 
-// Homepage con il form di ricerca
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-// POST: Ricerca voli standard con date e orari
+// Converte i dati Amadeus nel formato richiesto dal frontend
+function mapFlightToResult(flight) {
+  const seg = flight.itineraries[0].segments[0];
+  const carrier = seg.carrierCode || 'N/A';
+  const departure = seg.departure.at.replace('T', ' ');
+  const arrival = seg.arrival.at.replace('T', ' ');
+  const duration = flight.itineraries[0].duration.replace('PT', '').toLowerCase();
+  const price = flight.price?.total ? `${flight.price.total} ${flight.price.currency || 'EUR'}` : 'N/A';
+  return { carrier, departure, arrival, duration, price };
+}
+
 app.post('/search-flights', async (req, res) => {
   const { from, to, dates, time_min, time_max } = req.body;
   const token = await getAccessToken();
@@ -44,10 +54,9 @@ app.post('/search-flights', async (req, res) => {
     }
   }
 
-  res.send(`<h2>Risultati</h2><pre>${JSON.stringify(results, null, 2)}</pre><a href="/">Torna indietro</a>`);
+  res.json({ flights: results.map(mapFlightToResult) });
 });
 
-// POST: Ricerca voli da più aeroporti senza destinazione, su più date, con filtro orario
 app.post('/multi-origin-advanced', async (req, res) => {
   const { airports, dates, time_min, time_max } = req.body;
   const token = await getAccessToken();
@@ -85,12 +94,7 @@ app.post('/multi-origin-advanced', async (req, res) => {
             });
 
             if (filtered.length > 0) {
-              results.push({
-                origin: origin.trim(),
-                destination: dest.destination,
-                date: date.trim(),
-                offer: filtered[0]
-              });
+              results.push(filtered[0]);
             }
           } catch (err) {
             console.error(`Errore dettagli volo da ${origin} a ${dest.destination}:`, err.message);
@@ -102,7 +106,7 @@ app.post('/multi-origin-advanced', async (req, res) => {
     }
   }
 
-  res.send(`<h2>Voli trovati da più aeroporti con filtro orario</h2><pre>${JSON.stringify(results, null, 2)}</pre><a href="/">Torna indietro</a>`);
+  res.json({ flights: results.map(mapFlightToResult) });
 });
 
 async function getAccessToken() {
@@ -118,14 +122,4 @@ async function getAccessToken() {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server in ascolto su http://localhost:${PORT}`));
-
-/*
-Struttura cartelle:
-- flyflex-barebone/
-  - server.js
-  - .env
-  - package.json
-  - public/
-    - index.html
-*/
+app.listen(PORT, () => console.log(`✅ Server in ascolto su http://localhost:${PORT}`));
